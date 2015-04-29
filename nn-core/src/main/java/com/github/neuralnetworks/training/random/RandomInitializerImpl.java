@@ -17,7 +17,8 @@ public class RandomInitializerImpl implements RandomInitializer {
 
     public RandomInitializerImpl() {
 	super();
-	this.random = new Random();
+//	this.random = new Random();
+	this.random = new Random(0);
 	this.start = 0;
 	this.end = 1;
     }

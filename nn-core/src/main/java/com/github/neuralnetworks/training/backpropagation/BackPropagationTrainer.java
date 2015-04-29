@@ -1,15 +1,19 @@
 package com.github.neuralnetworks.training.backpropagation;
 
+import java.util.Arrays;
 import java.util.Set;
 
+import com.github.neuralnetworks.architecture.Connections;
 import com.github.neuralnetworks.architecture.FullyConnected;
 import com.github.neuralnetworks.architecture.Layer;
 import com.github.neuralnetworks.architecture.NeuralNetwork;
 import com.github.neuralnetworks.calculation.LayerCalculatorImpl;
 import com.github.neuralnetworks.calculation.memory.ValuesProvider;
+import com.github.neuralnetworks.calculation.neuronfunctions.AparapiFullyConnected;
 import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorFullyConnected;
 import com.github.neuralnetworks.events.TrainingEvent;
 import com.github.neuralnetworks.events.TrainingEventListener;
+import com.github.neuralnetworks.tensor.Tensor;
 import com.github.neuralnetworks.tensor.TensorFactory;
 import com.github.neuralnetworks.training.OneStepTrainer;
 import com.github.neuralnetworks.training.TrainingInputData;
@@ -68,9 +72,9 @@ public class BackPropagationTrainer<N extends NeuralNetwork> extends OneStepTrai
 	Set<Layer> calculatedLayers = new UniqueList<Layer>();
 	calculatedLayers.add(nn.getInputLayer());
 	nn.getLayerCalculator().calculate(nn, nn.getOutputLayer(), calculatedLayers, activations);
-
 	// backward
 	OutputErrorDerivative d = getProperties().getParameter(Constants.OUTPUT_ERROR_DERIVATIVE);
+	/*******There might be a problem here: different activation function has different cost function...cjx 2015-4-28******/
 	d.getOutputErrorDerivative(activations.get(nn.getOutputLayer()), activations.get(d), backpropagation.get(nn.getOutputLayer()));
 	calculatedLayers.clear();
 	calculatedLayers.add(nn.getOutputLayer());

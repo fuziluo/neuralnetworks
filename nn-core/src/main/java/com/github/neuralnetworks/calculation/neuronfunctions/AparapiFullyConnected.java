@@ -1,5 +1,6 @@
 package com.github.neuralnetworks.calculation.neuronfunctions;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -12,6 +13,7 @@ import com.github.neuralnetworks.calculation.memory.ValuesProvider;
 import com.github.neuralnetworks.tensor.Matrix;
 import com.github.neuralnetworks.tensor.Tensor;
 import com.github.neuralnetworks.tensor.TensorFactory;
+import com.github.neuralnetworks.training.backpropagation.BackPropagationSigmoid.AparapiBackpropSigmoid;
 import com.github.neuralnetworks.util.Environment;
 import com.github.neuralnetworks.util.Util;
 
@@ -48,7 +50,7 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
      * because of the Aparapi limitations) It is an array, because of the
      * combined connections
      */
-    protected float[] input;
+    public float[] input;
     @Constant
     protected final int[] inputStartPositions;
     @Constant
@@ -64,6 +66,7 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
     protected final int outputRowStep;
     protected final int outputColumnStep;
 
+    public float[] intermediumOut; //for debug cjx
     /**
      * This is combined with the other properties to represent the
      * FullyConnected connection (the FullyConnected class itself cannot be used
@@ -86,6 +89,7 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
 
 	// input
 	input = TensorFactory.tensor(Util.getOppositeLayer(inputConnections.get(0), targetLayer), inputConnections.get(0), valuesProvider).getElements();
+
 	weights = ((FullyConnected) inputConnections.get(0)).getWeights().getElements();
 	inputConnections.forEach(c -> {
 	    Tensor t = TensorFactory.tensor(Util.getOppositeLayer(c, targetLayer), c, valuesProvider);
@@ -120,6 +124,7 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
 	// output
 	Matrix o = TensorFactory.tensor(targetLayer, inputConnections, valuesProvider);
 	this.output = o.getElements();
+	this.intermediumOut = new float[this.output.length]; //for debug cjx
 	this.outputStartPosition = o.getStartIndex();
 	this.outputRowStep = o.getRowElementsDistance();
 	this.outputColumnStep = o.getColumnElementsDistance();
@@ -148,7 +153,41 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
     @Override
     public void calculate(List<Connections> connections, ValuesProvider valuesProvider, Layer targetLayer) {
 	if (accept(connections, valuesProvider, targetLayer)) {
-	    Environment.getInstance().getExecutionStrategy().execute(this, targetLayer.getUnitCount(connections));
+//		String classname = this.toString();
+////		System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
+//		System.out.println(targetLayer.getUnitCount(connections)+" "+input.length+" "+weights.length+" "+output.length + " "+weightsStep[0]+" "+classname.substring(classname.indexOf("$"),classname.indexOf("@")));
+////		System.out.println("input "+Arrays.toString(input));
+////		System.out.println("weights before "+Arrays.toString(weights));
+//		if (this instanceof AparapiBackpropSigmoid) {
+////			System.out.println("output before "+Arrays.toString(output));
+//			
+//			int inputStartPosition = inputStartPositions[0];
+//			int inputRowsStep = inputRowSteps[0];
+//			int weightStartPosition = weightStartPositions[0] + weightsInitialStep[0] * 0;
+//			int weightStep = weightsStep[0];
+//			int dim = weightsSize[0];
+//
+//			for (int j = 0; j < dim; j++) {
+//				float in = input[inputStartPosition + j * inputRowsStep];
+//			    float we = weights[weightStartPosition + j * weightStep];
+//			    System.out.println("input "+in+" weight "+we);
+//			}
+//			AparapiBackpropSigmoid back = (AparapiBackpropSigmoid) (this);
+//			System.out.println("ffActivation "+back.ffActivation[0]);
+//			
+//		}
+		Environment.getInstance().getExecutionStrategy().execute(this, targetLayer.getUnitCount(connections));
+//		if (this instanceof AparapiBackpropSigmoid) {
+//			AparapiBackpropSigmoid back = (AparapiBackpropSigmoid) (this);
+//			System.out.println("intermediumOut "+Arrays.toString(intermediumOut));
+//			System.out.println("weights after"+Arrays.toString(weights));
+//			System.out.println("weightUpdates "+Arrays.toString(back.weightUpdates));
+//			System.out.println("ffActivation "+Arrays.toString(back.ffActivation));
+//		}
+//		System.out.println("input: "+Arrays.toString(input));
+//		System.out.println("output: "+Arrays.toString(output));
+//		System.out.println();
+
 	} else {
 	    throw new IllegalArgumentException("A parameter does not match");
 	}

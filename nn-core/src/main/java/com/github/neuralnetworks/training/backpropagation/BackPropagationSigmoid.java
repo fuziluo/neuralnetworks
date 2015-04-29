@@ -48,6 +48,7 @@ public class BackPropagationSigmoid extends BackPropagationConnectionCalculatorI
 	    int outputId = outputStartPosition + getGlobalId() * outputRowStep;
 	    int activationId = activationStartPosition + getGlobalId() * activationRowStep;
 	    for (; outputId < end; outputId += outputColumnStep, activationId += activationColumnStep) {
+//	    	intermediumOut[outputId] = ffActivation[activationId];
 		activation = ffActivation[activationId];
 		output[outputId] = output[outputId] * activation * (1 - activation);
 	    }

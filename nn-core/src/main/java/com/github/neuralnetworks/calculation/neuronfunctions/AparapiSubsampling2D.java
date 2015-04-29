@@ -1,5 +1,6 @@
 package com.github.neuralnetworks.calculation.neuronfunctions;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.amd.aparapi.Kernel;
@@ -134,6 +135,8 @@ public abstract class AparapiSubsampling2D extends Kernel implements ConnectionC
 		Environment.getInstance().getExecutionStrategy().execute(this, Util.getOppositeLayer(c, targetLayer).getUnitCount(connections));
 	    }
 	}
+//	System.out.println("input : "+input.length+Arrays.toString(input));
+//	System.out.println("output : "+output.length+Arrays.toString(output));
     }
 
     /* (non-Javadoc)

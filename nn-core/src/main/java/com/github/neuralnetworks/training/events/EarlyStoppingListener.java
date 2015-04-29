@@ -85,6 +85,7 @@ public class EarlyStoppingListener implements TrainingEventListener {
 		    }
 
 		    float e = outputError.getTotalNetworkError();
+		    System.out.printf("***bach %d error is %04f threshold is %.4f\n",mbe.getBatchCount(),e,acceptanceError);
 		    if (e <= acceptanceError) {
 			System.out.println("Stopping at error " + e + " (" + (e * 100) + "%) for " + mbe.getBatchCount() + " minibatches");
 			t.stopTraining();

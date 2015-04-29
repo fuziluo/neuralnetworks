@@ -3,12 +3,15 @@ package com.github.neuralnetworks.samples.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
 
 import com.amd.aparapi.Kernel.EXECUTION_MODE;
+import com.github.neuralnetworks.architecture.Connections;
+import com.github.neuralnetworks.architecture.FullyConnected;
 import com.github.neuralnetworks.architecture.NeuralNetwork;
 import com.github.neuralnetworks.architecture.NeuralNetworkImpl;
 import com.github.neuralnetworks.architecture.types.Autoencoder;
@@ -22,6 +25,7 @@ import com.github.neuralnetworks.input.MultipleNeuronsOutputError;
 import com.github.neuralnetworks.input.ScalingInputFunction;
 import com.github.neuralnetworks.samples.iris.IrisInputProvider;
 import com.github.neuralnetworks.samples.iris.IrisTargetMultiNeuronOutputConverter;
+import com.github.neuralnetworks.tensor.Tensor.TensorIterator;
 import com.github.neuralnetworks.training.DNNLayerTrainer;
 import com.github.neuralnetworks.training.OneStepTrainer;
 import com.github.neuralnetworks.training.TrainerFactory;
@@ -44,7 +48,7 @@ public class IrisTest {
     @Test
     public void testMLPSigmoidBP() {
 	// execution mode
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+	Environment.getInstance().setExecutionMode(EXECUTION_MODE.JTP);
 	Environment.getInstance().setUseWeightsSharedMemory(false);
 
 	// create the network
@@ -58,13 +62,15 @@ public class IrisTest {
 	OutputError outputError = new MultipleNeuronsOutputError();
 
 	// trainer
-	BackPropagationTrainer<?> bpt = TrainerFactory.backPropagation(mlp, trainInputProvider, testInputProvider, outputError, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.01f, 0.01f), 0.5f), 0.02f, 0.7f, 0f, 0f, 0f, 150, 1, 2000);
+	BackPropagationTrainer<?> bpt = TrainerFactory.backPropagation(mlp, trainInputProvider, testInputProvider, outputError, new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.01f, 0.01f), 0.5f), 0.02f, 0.7f, 0f, 0f, 0f, trainInputProvider.getInputSize(), 1, 200);
 
 	// log data
-	bpt.addEventListener(new LogTrainingListener(Thread.currentThread().getStackTrace()[1].getMethodName()));
+//	bpt.addEventListener(new LogTrainingListener(Thread.currentThread().getStackTrace()[1].getMethodName()));
+	bpt.addEventListener(new LogTrainingListener(Thread.currentThread().getStackTrace()[1].getMethodName(), false, true));
 
 	// early stopping
-	bpt.addEventListener(new EarlyStoppingListener(testInputProvider, 100, 0.015f));
+//	bpt.addEventListener(new EarlyStoppingListener(testInputProvider, 100, 0.015f));
+
 
 	// train
 	bpt.train();
@@ -154,7 +160,7 @@ public class IrisTest {
     @Test
     public void testRBMCDSigmoidBP() {
 	// execution mode
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.CPU);
+	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 	Environment.getInstance().setUseDataSharedMemory(true);
 	Environment.getInstance().setUseWeightsSharedMemory(true);
 

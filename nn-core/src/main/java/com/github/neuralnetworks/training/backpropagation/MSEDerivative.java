@@ -29,7 +29,9 @@ public class MSEDerivative implements OutputErrorDerivative {
 
 	while (resultIt.hasNext()) {
 	    int activationId = activationIt.next();
+//	    float act = activation.getElements()[activationId];
 	    result.getElements()[resultIt.next()] = (target.getElements()[targetIt.next()] - activation.getElements()[activationId]) * activation.getElements()[activationId] * (1 - activation.getElements()[activationId]);
+//	    result.getElements()[resultIt.next()] = 1000000.0f*(target.getElements()[targetIt.next()] - act) * act * (1 - act);
 	}
     }
 }

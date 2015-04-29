@@ -1,5 +1,6 @@
 package com.github.neuralnetworks.training.backpropagation;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.github.neuralnetworks.architecture.Connections;
@@ -21,16 +22,19 @@ public class AparapiBackpropagationFullyConnected extends AparapiWeightedSum imp
     /**
      * Activation of the output layer from the feedforward phase
      */
-    @Constant
-    protected float[] ffActivation;
-    protected final int activationStartPosition;
-    protected final int activationRowStep;
-    protected final int activationColumnStep;
+    
+    
+//    @Constant 
+//    should not be constant solved by cjx 20150320
+	public float[] ffActivation;
+    public final int activationStartPosition;
+    public final int activationRowStep;
+    public final int activationColumnStep;
 
     /**
      * Weight updates array
      */
-    protected final float[] weightUpdates;
+    public final float[] weightUpdates;
 
     protected float learningRate;
     protected final float momentum;
@@ -42,6 +46,7 @@ public class AparapiBackpropagationFullyConnected extends AparapiWeightedSum imp
 
 	Matrix m = TensorFactory.tensor(targetLayer, inputConnections, activations);
 	this.ffActivation = m.getElements();
+//	System.out.println("!!!!ffActivation "+Arrays.toString(ffActivation));
 	this.activationStartPosition = m.getStartIndex();
 	this.activationRowStep = m.getRowElementsDistance();
 	this.activationColumnStep = m.getColumnElementsDistance();
@@ -71,19 +76,21 @@ public class AparapiBackpropagationFullyConnected extends AparapiWeightedSum imp
 	    dim = weightsSize[k];
 
 	    for (int j = 0; j < dim; j++) {
-		weightUpdate = 0;
-		for (int i = 0; i < miniBatchSize; i++) {
-		    weightUpdate += input[inputStartPosition + j * inputRowsStep + i * inputColumnsStep] * ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
-		}
-
-		weightIndex = weightStartPosition + j * weightStep;
-		weight = weights[weightIndex];
-		weightUpdate = lr * weightUpdate + momentum * weightUpdates[weightIndex] - l1weightDecay * abs(weight) - l2weightDecay * weight * weight / 2;
-		weights[weightIndex] += weightUpdate;
-		weightUpdates[weightIndex] = weightUpdate;
+			weightUpdate = 0;
+			for (int i = 0; i < miniBatchSize; i++) {
+//				float in = input[inputStartPosition + j * inputRowsStep + i * inputColumnsStep]/1000.0f;
+//				float ffa = 1000.0f*ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
+//				weightUpdate += in*ffa;
+			    weightUpdate += input[inputStartPosition + j * inputRowsStep + i * inputColumnsStep] * ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
+			    intermediumOut[activationStartPosition + id * activationRowStep + i * activationColumnStep] = ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
+			}
+			weightIndex = weightStartPosition + j * weightStep;
+			weight = weights[weightIndex];
+			weightUpdate = lr * weightUpdate + momentum * weightUpdates[weightIndex] - l1weightDecay * abs(weight) - l2weightDecay * weight * weight / 2;
+			weights[weightIndex] += weightUpdate;
+			weightUpdates[weightIndex] = weightUpdate;
 	    }
 	}
-
 	calcDerivative();
     }
 

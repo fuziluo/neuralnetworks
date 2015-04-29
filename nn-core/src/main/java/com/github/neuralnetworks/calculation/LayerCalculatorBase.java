@@ -2,6 +2,7 @@ package com.github.neuralnetworks.calculation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,14 @@ import com.github.neuralnetworks.architecture.Layer;
 import com.github.neuralnetworks.architecture.NeuralNetwork;
 import com.github.neuralnetworks.calculation.LayerOrderStrategy.ConnectionCandidate;
 import com.github.neuralnetworks.calculation.memory.ValuesProvider;
+import com.github.neuralnetworks.calculation.neuronfunctions.AparapiFullyConnected;
 import com.github.neuralnetworks.events.PropagationEvent;
 import com.github.neuralnetworks.events.PropagationEventListener;
 import com.github.neuralnetworks.tensor.Tensor;
 import com.github.neuralnetworks.tensor.TensorFactory;
+import com.github.neuralnetworks.training.backpropagation.AparapiBackpropagationConv2D;
+import com.github.neuralnetworks.training.backpropagation.BackPropagationConnectionCalculator;
+import com.github.neuralnetworks.training.backpropagation.BackPropagationSigmoid;
 
 /**
  * Base class for implementations of the LayerCalculator interface
@@ -37,10 +42,24 @@ public class LayerCalculatorBase implements Serializable {
 
 		if (i == connections.size() - 1 || connections.get(i + 1).target != c.target) {
 		    ConnectionCalculator cc = getConnectionCalculator(c.target);
+		    
+		    
+//			if (cc instanceof BackPropagationSigmoid ) {
+//				BackPropagationSigmoid bs = (BackPropagationSigmoid) cc;
+//				for (BackPropagationConnectionCalculator bc : bs.calculators)
+//					if (bc instanceof AparapiFullyConnected ) {
+//					AparapiFullyConnected fc = (AparapiFullyConnected) bc;
+//					System.out.println("before input "+Arrays.toString(fc.input));
+//				}
+//			}
+
+		    
 		    if (cc != null) {
 			Tensor t = TensorFactory.tensor(c.target, chunk, valuesProvider);
 			float[] elements = t.getElements();
 			IntStream.range(t.getStartIndex(), t.getStartIndex() + t.getSize()).forEach(j -> elements[j] = 0);
+//			System.out.println(cc);
+
 			cc.calculate(chunk, valuesProvider, c.target);
 		    }
 

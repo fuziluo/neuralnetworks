@@ -515,12 +515,21 @@ public class CNNTest {
 
     @Test
     public void testCNNBackpropagation() {
-	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+//	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
 
-	Environment.getInstance().setUseWeightsSharedMemory(true);
+	Environment.getInstance().setUseWeightsSharedMemory(false);
 	NeuralNetworkImpl nn = NNFactory.convNN(new int[][] { { 3, 3, 2 }, { 2, 2, 1, 1 } }, true);
+//	NeuralNetworkImpl nn = NNFactory.convNN(new int[][] { { 3, 3, 2 }, { 2, 2, 2, 1 } }, true);
 	nn.setLayerCalculator(NNFactory.lcSigmoid(nn, null));
-
+	
+//	for (Connections c : nn.getConnections()) {
+//		if (c instanceof Conv2DConnection) {
+//			System.out.println(c);
+//			System.out.println(Arrays.toString(((Conv2DConnection) c).getWeights().getElements()));
+//		}
+//		System.out.println(c.getInputUnitCount() + " " + c.getOutputUnitCount());
+//	}
+	
 	Conv2DConnection c = (Conv2DConnection) nn.getInputLayer().getConnections().get(0);
 	TensorIterator it = c.getWeights().iterator();
 	float x = 0.1f;
@@ -532,7 +541,8 @@ public class CNNTest {
 	Conv2DConnection b = (Conv2DConnection) nn.getOutputLayer().getConnections().get(1);
 	b.getWeights().getElements()[b.getWeights().getStartIndex()] = -3f;
 
-	SimpleInputProvider ts = new SimpleInputProvider(new float[][] { { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f } }, new float[][] { { 1, 1, 1, 1 } });
+//	SimpleInputProvider ts = new SimpleInputProvider(new float[][] { { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f } }, new float[][] { { 1, 1, 1, 1 } });
+	SimpleInputProvider ts = new SimpleInputProvider(new float[][] { { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f } }, new float[][] { { 1, 1, 1, 1, 1, 1, 1, 1 } });
 	BackPropagationTrainer<?> t = TrainerFactory.backPropagation(nn, ts, null, null, null, 0.5f, 0f, 0f, 0f, 0f, 1, 1, 1);
 	t.train();
 
@@ -548,6 +558,52 @@ public class CNNTest {
 	assertEquals(-2.911599, b.getWeights().getElements()[b.getWeights().getStartIndex()], 0.00001);
     }
 
+    @Test
+    public void testCNNBackpropagationBatch() {
+    	//TODO
+	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+
+	Environment.getInstance().setUseWeightsSharedMemory(false);
+	NeuralNetworkImpl nn = NNFactory.convNN(new int[][] { { 3, 3, 1 }, { 2, 2, 1, 1 } }, false);
+	nn.setLayerCalculator(NNFactory.lcSigmoid(nn, null));
+	
+//	for (Connections c : nn.getConnections()) {
+//		if (c instanceof Conv2DConnection) {
+//			System.out.println(c);
+//			System.out.println(Arrays.toString(((Conv2DConnection) c).getWeights().getElements()));
+//		}
+//		System.out.println(c.getInputUnitCount() + " " + c.getOutputUnitCount());
+//	}
+	
+	Conv2DConnection c = (Conv2DConnection) nn.getInputLayer().getConnections().get(0);
+	TensorIterator it = c.getWeights().iterator();
+	float x = 0.1f;
+	while (it.hasNext()) {
+	    c.getWeights().getElements()[it.next()] = x;
+	    x += 0.1f;
+	}
+
+//	Conv2DConnection b = (Conv2DConnection) nn.getOutputLayer().getConnections().get(1);
+//	b.getWeights().getElements()[b.getWeights().getStartIndex()] = -3f;
+
+//	SimpleInputProvider ts = new SimpleInputProvider(new float[][] { { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f } }, new float[][] { { 1, 1, 1, 1 } });
+	SimpleInputProvider ts = new SimpleInputProvider(new float[][] { { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f } }, new float[][] { { 1, 1, 1, 1 } });
+//	SimpleInputProvider ts = new SimpleInputProvider(new float[][] { { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f}, {1, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f } }, new float[][] { { 1, 1, 1, 1}, {1, 1, 1, 1 } });
+	BackPropagationTrainer<?> t = TrainerFactory.backPropagation(nn, ts, null, null, null, 0.5f, 0f, 0f, 0f, 0f, 1, 1, 1);
+	t.train();
+
+	it = c.getWeights().iterator();
+	assertEquals(0.11756, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.22640, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.34408, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.45292, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.59712, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.70596, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.82364, c.getWeights().getElements()[it.next()], 0.00001);
+	assertEquals(0.93248, c.getWeights().getElements()[it.next()], 0.00001);
+//	assertEquals(-2.911599, b.getWeights().getElements()[b.getWeights().getStartIndex()], 0.00001);
+    }
+    
     @Test
     public void testCNNBackpropagation2() {
 	Environment.getInstance().setUseWeightsSharedMemory(true);

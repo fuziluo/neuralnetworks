@@ -22,11 +22,12 @@ public class AparapiConv2DFF extends AparapiConv2D {
 
 	for (int i = 0; i < miniBatchSize; i++) {
 	    sum = output[outputStartId + i * outputMiniBatchDistance];
-
 	    for (int j = 0; j < featureMapWeights; j++) {
-		sum += input[inputStartId + featureMapOffsets[i * featureMapWeights + j]] * weights[weightsStartId + j];
+	    	//the order of convolution seems to be wrong
+			sum += input[inputStartId + featureMapOffsets[i * featureMapWeights + j]] * weights[weightsStartId + j];
+//			sum += input[inputStartId + featureMapOffsets[i * featureMapWeights + j]] * weights[weightsStartId + (featureMapWeights - j -1)];
+//		    System.out.println(sum+" @ "+ input[inputStartId + featureMapOffsets[i * featureMapWeights + j]]+" "+weights[weightsStartId + (featureMapWeights - j - 1)]);
 	    }
-
 	    output[outputStartId + i * outputMiniBatchDistance] = activationFunction(sum);
 	}
     }

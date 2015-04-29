@@ -1,5 +1,6 @@
 package com.github.neuralnetworks.training.backpropagation;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.github.neuralnetworks.architecture.Connections;
@@ -14,14 +15,14 @@ import com.github.neuralnetworks.util.Util;
 /**
  * BackPropagation base function for convolutional layers
  */
-public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackPropagationConnectionCalculator {
 
+public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackPropagationConnectionCalculator {
     private static final long serialVersionUID = -345286029645674230L;
 
     /**
      * Activation of the output layer from the feedforward phase
      */
-    protected float[] ffActivation;
+    public float[] ffActivation;
     protected final int activationStartIndex;
     protected final int activationFeatureMapRowsDistance;
     protected final int activationFeatureMapColumnsDistance;
@@ -31,6 +32,7 @@ public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackP
      */
     protected final Tensor weightUpdatesTensor;
     protected final float[] weightUpdates;
+    protected float[] weightUpdatesTmp; //GPU global memory
     protected final float[] weightUpdatesMomentum;
 
     /**
@@ -62,6 +64,9 @@ public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackP
 	this.weightUpdatesTensor = weightUpdates;
 	this.weightUpdates = weightUpdates.getElements();
 	this.weightUpdatesMomentum = new float[weightUpdates.getSize()];
+	//workaround for racing
+	this.weightUpdatesTmp = new float[weightUpdates.getSize()*outputFeatureMapLength];
+//	System.out.println(weightUpdates.getElements().length+" "+outputFeatureMapLength);
     }
 
     @Override
@@ -76,15 +81,26 @@ public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackP
 
 	if (c != null) {
 	    weightUpdatesTensor.forEach(i -> weightUpdates[i] = 0);
-
+	    weightUpdatesTmp = new float[weightUpdatesTmp.length];
 	    // currently works only as a feedforward (including bp)
-	    if (targetLayer == c.getOutputLayer()) {
+//	    System.out.println("output before: "+output.length+Arrays.toString(output));
+//		System.out.println("ffActivationtivation before: "+ffActivation.length+Arrays.toString(ffActivation));
+//	    System.out.println("featureMapOffsets before: "+featureMapOffsets.length+Arrays.toString(featureMapOffsets));
+		if (targetLayer == c.getOutputLayer()) {
 		super.calculate(c, valuesProvider, targetLayer);
 	    } else {
 		super.calculate(c, valuesProvider, Util.getOppositeLayer(c, targetLayer));
 	    }
-
+	    
+//	    System.out.println("input: "+input.length+Arrays.toString(input));
+//	    System.out.println("output after: "+output.length+Arrays.toString(output));
+//		
+//		System.out.println("weights before: "+weights.length+Arrays.toString(weights));	
+//	    
+//	    System.out.println("weightsupdate: " + Arrays.toString(weightUpdates));
 	    updateWeights();
+//	    System.out.println("weights after: " + weights.length+Arrays.toString(weights));
+//	    System.out.println("weightsupdate after: " + Arrays.toString(weightUpdates));
 	}
     }
 
@@ -92,14 +108,17 @@ public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackP
     protected void conv(int weightsStartId, int inputStartId, int outputStartId) {
 	float activationDerivative = 0;
 	int activationStartId = activationStartIndex + ((getGlobalId() % outputFeatureMapLength) / outputColumns) * activationFeatureMapRowsDistance * stride + (getGlobalId() % outputColumns) * activationFeatureMapColumnsDistance * stride;
-
 	for (int i = 0; i < miniBatchSize; i++) {
 	    activationDerivative = activationFunctionDerivative(output[outputStartId + i * outputMiniBatchDistance]);
 	    output[outputStartId + i * outputMiniBatchDistance] = activationDerivative;
 
 	    for (int j = 0; j < featureMapWeights; j++) {
-		weightUpdates[weightsStartId + j] += activationDerivative * ffActivation[activationStartId + featureMapOffsets[i * featureMapWeights + j]];
-		input[inputStartId + featureMapOffsets[i * featureMapWeights + j]] += activationDerivative * weights[weightsStartId + j];
+//	    	System.out.println(weightsStartIndex+" "+getGlobalId()+" "+weightUpdates.length);
+	    	//racing happens here
+//	    	weightUpdates[weightsStartId + j] += activationDerivative * ffActivation[activationStartId + featureMapOffsets[i * featureMapWeights + j]];
+//		    System.out.println(activationDerivative+" "+ffActivation[activationStartId + featureMapOffsets[i * featureMapWeights + j]]);
+			weightUpdatesTmp[getGlobalId()*featureMapWeights + j] += activationDerivative * ffActivation[activationStartId + featureMapOffsets[i * featureMapWeights + j]];
+	    	input[inputStartId + featureMapOffsets[i * featureMapWeights + j]] += activationDerivative * weights[weightsStartId + j];
 	    }
 	}
     }
@@ -109,6 +128,12 @@ public class AparapiBackpropagationConv2D extends AparapiConv2D implements BackP
      */
     protected void updateWeights() {
 	float weightUpdate = 0;
+	for (int i = 0; i < weightUpdatesTensor.getSize(); i++) {
+		for (int k = 0; k < outputFeatureMapLength; k++) {
+			weightUpdates[i + weightsStartIndex] += weightUpdatesTmp[i + k*featureMapWeights];
+		}
+	}
+//	System.out.println("weightsupdate: " + Arrays.toString(weightUpdates));
 	for (int i = weightsStartIndex, j = 0, size = weightUpdatesTensor.getSize(); j < size; j++, i++) {
 	    weightUpdate = learningRate * weightUpdates[i] + momentum * weightUpdatesMomentum[j] - l1weightDecay * Math.abs(weights[i]) - l2weightDecay * weights[i] * weights[i] / 2;
 	    weights[i] += weightUpdate;

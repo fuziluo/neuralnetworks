@@ -34,7 +34,7 @@ public abstract class AparapiConv2D extends Kernel implements Serializable {
     /**
      * output
      */
-    protected float[] output;
+    public float[] output;
     protected final int outputStartIndex;
     protected final int outputFeatureMapsDistance;
     protected final int outputFeatureMapRowsDistance;
@@ -47,7 +47,7 @@ public abstract class AparapiConv2D extends Kernel implements Serializable {
      * combined feature weights of all feature maps
      */
     //@Local TODO
-    protected final float[] weights;
+    public final float[] weights;
     protected final int weightsStartIndex;
 
     /**
@@ -59,7 +59,7 @@ public abstract class AparapiConv2D extends Kernel implements Serializable {
      * input offset for each feature map in respect to the start index
      */
     //@Local TODO
-    @Constant
+//    @Constant
     protected final int[] featureMapOffsets;
 
     /**
@@ -122,7 +122,17 @@ public abstract class AparapiConv2D extends Kernel implements Serializable {
 
     public void calculate(Conv2DConnection c, ValuesProvider valuesProvider, Layer targetLayer) {
 	if (c != null) {
-	    Environment.getInstance().getExecutionStrategy().execute(this, targetLayer.getUnitCount(Arrays.asList(new Conv2DConnection[] {c})));
+//		System.out.println("parallelization factor is: "+targetLayer.getUnitCount(Arrays.asList(new Conv2DConnection[] {c})));
+		long t1 = System.currentTimeMillis();
+//	    System.out.println("Output : " + output.length + Arrays.toString(output));
+//	    System.out.println("Input : " + input.length + Arrays.toString(input));
+//	    System.out.println("weights : " + weights.length + Arrays.toString(weights));
+		Environment.getInstance().getExecutionStrategy().execute(this, targetLayer.getUnitCount(Arrays.asList(new Conv2DConnection[] {c})));
+//	    System.out.println("Output : " + output.length + Arrays.toString(output));
+//	    System.out.println("Input : " + input.length + Arrays.toString(input));
+//	    System.out.println("weightsStartIndex "+weightsStartIndex+" featureMapWeights "+featureMapWeights+" outputFeatureMapLength "+outputFeatureMapLength);
+//		System.out.println(this);
+//		System.out.printf("Time spent on conv kernel is: %.3f\n", (System.currentTimeMillis()-t1)/1000.0);
 	}
     }
 

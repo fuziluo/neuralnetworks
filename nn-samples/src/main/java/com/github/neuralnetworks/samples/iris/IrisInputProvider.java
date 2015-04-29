@@ -25,7 +25,7 @@ public class IrisInputProvider extends TrainingInputProviderImpl {
 
     @Override
     public void beforeSample() {
-	currentIndex = random != null ? random.nextInt(150) : currentInput % 150;
+	currentIndex = random != null ? random.nextInt(irisData.length) : currentInput % irisData.length;
     }
 
     @Override

@@ -45,7 +45,8 @@ public class MnistInputProvider extends TrainingInputProviderImpl {
 	    currentInput = new float[rows * cols];
 	    currentTarget = new float[10];
 
-	    random = new Random();
+//	    random = new Random();
+	    random = new Random(0);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}

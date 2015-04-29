@@ -1,6 +1,7 @@
 package com.github.neuralnetworks.training.backpropagation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.github.neuralnetworks.architecture.Connections;
 import com.github.neuralnetworks.architecture.Layer;
 import com.github.neuralnetworks.architecture.NeuralNetwork;
 import com.github.neuralnetworks.calculation.memory.ValuesProvider;
+import com.github.neuralnetworks.calculation.neuronfunctions.AparapiFullyConnected;
 import com.github.neuralnetworks.tensor.Tensor;
 import com.github.neuralnetworks.tensor.TensorFactory;
 import com.github.neuralnetworks.training.backpropagation.BackpropagationMaxout.AparapiBackpropMaxout;
@@ -53,7 +55,11 @@ public abstract class BackPropagationConnectionCalculatorImpl implements BackPro
 
 	List<Connections> chunkCalc = new ArrayList<>();
 	for (BackPropagationConnectionCalculator bc : calculators) {
-	    chunkCalc.clear();
+//		if (bc instanceof AparapiFullyConnected ) {
+//			AparapiFullyConnected fc = (AparapiFullyConnected) bc;
+//			System.out.println("before input "+Arrays.toString(fc.input));
+//		}
+		chunkCalc.clear();
 
 	    Layer target = targetLayer;
 	    for (Connections c : connections) {

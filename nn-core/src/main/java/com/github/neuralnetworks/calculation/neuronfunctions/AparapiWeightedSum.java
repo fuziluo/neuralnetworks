@@ -6,6 +6,7 @@ import com.github.neuralnetworks.architecture.Connections;
 import com.github.neuralnetworks.architecture.Layer;
 import com.github.neuralnetworks.calculation.ConnectionCalculator;
 import com.github.neuralnetworks.calculation.memory.ValuesProvider;
+import com.github.neuralnetworks.training.backpropagation.BackPropagationSigmoid.AparapiBackpropSigmoid;
 
 /**
  * Base Aparapi connection calculator for weighted sum functions (matrix
@@ -30,14 +31,20 @@ public class AparapiWeightedSum extends AparapiFullyConnected implements Connect
     @Override
     public void run() {
 	int id = getGlobalId();
-
+	
 	int inputStartPosition = 0, inputRowsStep = 0, inputColumnsStep = 0, weightStartPosition = 0, weightStep = 0, dim = 0;
 	float value = 0;
-
+//	float scale = 1.0f;
+//	if (input[0] != 0) {
+//		float testInput = input[0];
+//		int scalePow = (int) (log(abs(testInput))/2.3025f) - 3; 
+//		scale = pow(10, scalePow);
+//	}
 	// each input example
 	for (int i = 0; i < miniBatchSize; i++) {
 	    // each connection (of the combined connections)
-	    value = output[outputStartPosition + id * outputRowStep + i * outputColumnStep];
+//	    value = output[outputStartPosition + id * outputRowStep + i * outputColumnStep]/scale;
+		value = 0;
 	    for (int k = 0; k < series; k++) {
 		// each element in the row/column
 		inputStartPosition = inputStartPositions[k];
@@ -48,13 +55,13 @@ public class AparapiWeightedSum extends AparapiFullyConnected implements Connect
 		dim = weightsSize[k];
 
 		for (int j = 0; j < dim; j++) {
-		    value += input[inputStartPosition + j * inputRowsStep + i * inputColumnsStep] * weights[weightStartPosition + j * weightStep];
+			float in = input[inputStartPosition + j * inputRowsStep + i * inputColumnsStep];
+		    value += in * weights[weightStartPosition + j * weightStep];
 		}
 	    }
-
-	    output[outputStartPosition + id * outputRowStep + i * outputColumnStep] = value;
+	    output[outputStartPosition + id * outputRowStep + i * outputColumnStep] += value;
+//	    intermediumOut[outputStartPosition + id * outputRowStep + i * outputColumnStep] = output[outputStartPosition + id * outputRowStep + i * outputColumnStep];
 	}
-
 	after();
     }
 

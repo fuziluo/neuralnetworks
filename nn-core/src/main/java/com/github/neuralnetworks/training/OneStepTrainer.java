@@ -1,6 +1,12 @@
 package com.github.neuralnetworks.training;
 
+import java.util.Arrays;
+
+import com.github.neuralnetworks.architecture.Connections;
+import com.github.neuralnetworks.architecture.Conv2DConnection;
+import com.github.neuralnetworks.architecture.FullyConnected;
 import com.github.neuralnetworks.architecture.NeuralNetwork;
+import com.github.neuralnetworks.architecture.Subsampling2DConnection;
 import com.github.neuralnetworks.training.events.EpochFinishedEvent;
 import com.github.neuralnetworks.training.events.MiniBatchFinishedEvent;
 import com.github.neuralnetworks.training.events.TrainingFinishedEvent;
@@ -39,14 +45,20 @@ public abstract class OneStepTrainer<N extends NeuralNetwork> extends Trainer<N>
 	getTrainingInputProvider().reset();
 
 	for (int i = 0, batch = 0; i < getEpochs() * getTrainingInputProvider().getInputSize() && !stopTraining; i += getTrainingBatchSize(), batch++) {
-	    TrainingInputData input = getInput();
+		TrainingInputData input = getInput();
 	    getTrainingInputProvider().populateNext(input);
+//	    System.out.println("****** loop "+batch+" **********");
 	    learnInput(batch);
 	    triggerEvent(new MiniBatchFinishedEvent(this, input, null, batch));
 
 	    if (i % getTrainingInputProvider().getInputSize() == 0) {
 		triggerEvent(new EpochFinishedEvent(this, input, null, i / getTrainingInputProvider().getInputSize()));
 	    }
+	    
+//	    if (batch%1000==0) {
+//	    	test();
+//	    }
+//	    if (batch >= 1) break;
 	}
 
 	triggerEvent(new TrainingFinishedEvent(this));
