@@ -25,6 +25,7 @@ import com.github.neuralnetworks.calculation.memory.ValuesProvider;
 import com.github.neuralnetworks.calculation.neuronfunctions.AparapiWeightedSumConnectionCalculator;
 import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorFullyConnected;
 import com.github.neuralnetworks.calculation.neuronfunctions.MaxoutWinners;
+import com.github.neuralnetworks.calculation.neuronfunctions.WeightedSumConnectionCalculatorOpenCL;
 import com.github.neuralnetworks.input.SimpleInputProvider;
 import com.github.neuralnetworks.tensor.Matrix;
 import com.github.neuralnetworks.tensor.Tensor;
@@ -40,7 +41,7 @@ public class FFNNTest {
 
     @Test
     public void testWeightedSumFF() {
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+//	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 
 	Layer il1 = new Layer();
 	Layer ol = new Layer();
@@ -88,7 +89,9 @@ public class FFNNTest {
 	i1.set(5, 1, 1);
 	i1.set(6, 2, 1);
 
-	ConnectionCalculatorFullyConnected aws = new AparapiWeightedSumConnectionCalculator();
+//	ConnectionCalculatorFullyConnected aws = new AparapiWeightedSumConnectionCalculator();
+	ConnectionCalculatorFullyConnected aws = new WeightedSumConnectionCalculatorOpenCL();
+
 	aws.calculate(connections, vp, ol);
 
 	// most simple case
@@ -161,7 +164,7 @@ public class FFNNTest {
 
     @Test
     public void testWeightedSumBP() {
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
+//	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 
 	Layer il1 = new Layer();
 	Layer ol = new Layer();
@@ -192,7 +195,8 @@ public class FFNNTest {
 	bcg.set(0.1f, 0, 0);
 	bcg.set(0.2f, 1, 0);
 
-	ConnectionCalculatorFullyConnected aws = new AparapiWeightedSumConnectionCalculator();
+//	ConnectionCalculatorFullyConnected aws = new AparapiWeightedSumConnectionCalculator();
+	ConnectionCalculatorFullyConnected aws = new WeightedSumConnectionCalculatorOpenCL();
 
 	List<Connections> connections = new ArrayList<>();
 	connections.add(c1);
@@ -232,7 +236,8 @@ public class FFNNTest {
 	i1.set(5, 1, 1);
 	i1.set(6, 2, 1);
 
-	aws = new AparapiWeightedSumConnectionCalculator();
+//	aws = new AparapiWeightedSumConnectionCalculator();
+	aws = new WeightedSumConnectionCalculatorOpenCL();
 	aws.calculate(connections, vp, ol);
 
 	o = vp.get(ol);
@@ -266,7 +271,9 @@ public class FFNNTest {
 	i2.set(5, 1, 1);
 	i2.set(6, 2, 1);
 
-	aws = new AparapiWeightedSumConnectionCalculator();
+//	aws = new AparapiWeightedSumConnectionCalculator();
+	aws = new WeightedSumConnectionCalculatorOpenCL();
+
 	aws.calculate(connections, vp, ol);
 
 	o = vp.get(ol);
@@ -281,8 +288,8 @@ public class FFNNTest {
      */
     @Test
     public void testSigmoidBP() {
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
-	Environment.getInstance().setUseWeightsSharedMemory(true);
+//	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
+	Environment.getInstance().setUseWeightsSharedMemory(false);
 	NeuralNetworkImpl mlp = NNFactory.mlpSigmoid(new int[] { 2, 2, 1 }, false);
 
 	FullyConnected c1 = (FullyConnected) mlp.getInputLayer().getConnections().iterator().next();
@@ -313,7 +320,7 @@ public class FFNNTest {
      */
     @Test
     public void testSigmoidBP2() {
-	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 	Environment.getInstance().setUseWeightsSharedMemory(true);
 	NeuralNetworkImpl mlp = NNFactory.mlpSigmoid(new int[] { 3, 2, 1 }, true);
 
@@ -365,7 +372,7 @@ public class FFNNTest {
      */
     @Test
     public void testSigmoidBPDropout() {
-	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 	Environment.getInstance().setUseWeightsSharedMemory(true);
 	NeuralNetworkImpl mlp = NNFactory.mlpSigmoid(new int[] { 3, 2, 1 }, true);
 
@@ -417,7 +424,7 @@ public class FFNNTest {
      */
     @Test
     public void testMaxoutFF() {
-	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+	//Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 	Environment.getInstance().setUseWeightsSharedMemory(true);
 	NeuralNetworkImpl nn = NNFactory.maxout(new int[] { 2, 2 }, true, null);
 
@@ -462,7 +469,7 @@ public class FFNNTest {
      */
     @Test
     public void testMaxoutBP() {
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 	Environment.getInstance().setUseWeightsSharedMemory(true);
 	NeuralNetworkImpl nn = NNFactory.maxout(new int[] { 2, 2 }, true, null);
 
@@ -550,7 +557,7 @@ public class FFNNTest {
 
     @Test
     public void testParallelNetworks() {
-	Environment.getInstance().setExecutionMode(EXECUTION_MODE.SEQ);
+	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
 
 	Environment.getInstance().setUseWeightsSharedMemory(true);
 	ConnectionFactory cf = new ConnectionFactory();

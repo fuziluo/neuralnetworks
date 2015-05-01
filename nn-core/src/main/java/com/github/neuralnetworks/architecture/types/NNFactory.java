@@ -27,6 +27,7 @@ import com.github.neuralnetworks.calculation.neuronfunctions.AparapiWeightedSumC
 import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorConv;
 import com.github.neuralnetworks.calculation.neuronfunctions.ConstantConnectionCalculator;
 import com.github.neuralnetworks.calculation.neuronfunctions.MaxoutWinners;
+import com.github.neuralnetworks.calculation.neuronfunctions.WeightedSumSigmoidOpenCL;
 import com.github.neuralnetworks.util.Constants;
 import com.github.neuralnetworks.util.Properties;
 import com.github.neuralnetworks.util.Util;
@@ -204,7 +205,8 @@ public class NNFactory {
 		} else if (Util.isConvolutional(l)) {
 		    lc.addConnectionCalculator(l, new AparapiConv2DSigmoid());
 		} else if (!Util.isSubsampling(l)) {
-		    lc.addConnectionCalculator(l, new AparapiSigmoid());
+//		    lc.addConnectionCalculator(l, new AparapiSigmoid());
+		    lc.addConnectionCalculator(l, new WeightedSumSigmoidOpenCL());
 		}
 	    } else {
 		lc.addConnectionCalculator(l, new ConstantConnectionCalculator());

@@ -82,7 +82,7 @@ public class AparapiBackpropagationFullyConnected extends AparapiWeightedSum imp
 //				float ffa = 1000.0f*ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
 //				weightUpdate += in*ffa;
 			    weightUpdate += input[inputStartPosition + j * inputRowsStep + i * inputColumnsStep] * ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
-			    intermediumOut[activationStartPosition + id * activationRowStep + i * activationColumnStep] = ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
+//			    intermediumOut[activationStartPosition + id * activationRowStep + i * activationColumnStep] = ffActivation[activationStartPosition + id * activationRowStep + i * activationColumnStep];
 			}
 			weightIndex = weightStartPosition + j * weightStep;
 			weight = weights[weightIndex];

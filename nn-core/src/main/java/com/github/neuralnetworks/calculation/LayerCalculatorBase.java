@@ -53,14 +53,16 @@ public class LayerCalculatorBase implements Serializable {
 //				}
 //			}
 
-		    
+//			System.out.println(cc);
+
 		    if (cc != null) {
 			Tensor t = TensorFactory.tensor(c.target, chunk, valuesProvider);
 			float[] elements = t.getElements();
 			IntStream.range(t.getStartIndex(), t.getStartIndex() + t.getSize()).forEach(j -> elements[j] = 0);
-//			System.out.println(cc);
 
 			cc.calculate(chunk, valuesProvider, c.target);
+		    } else {
+		    	throw new IllegalArgumentException("connection without calculator!");
 		    }
 
 		    chunk.clear();

@@ -45,6 +45,7 @@ public class MnistTest {
 	BackPropagationTrainer<?> bpt = TrainerFactory.backPropagation(mlp, trainInputProvider, testInputProvider, new MultipleNeuronsOutputError(), new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.01f, 0.01f)), 0.02f, 0.5f, 0f, 0f, 0f, 1, 1000, 1);
 
 	bpt.addEventListener(new LogTrainingListener(Thread.currentThread().getStackTrace()[1].getMethodName(), false, true));
+//	bpt.addEventListener(new EarlyStoppingListener(testInputProvider, 5000, 0.015f));
 
 //	Environment.getInstance().setExecutionMode(EXECUTION_MODE.CPU);
 	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);
@@ -64,9 +65,10 @@ public class MnistTest {
 	MnistInputProvider testInputProvider = new MnistInputProvider("t10k-images-idx3-ubyte", "t10k-labels-idx1-ubyte");
 	testInputProvider.addInputModifier(new ScalingInputFunction(255));
 
-	BackPropagationTrainer<?> bpt = TrainerFactory.backPropagation(mlp, trainInputProvider, testInputProvider, new MultipleNeuronsOutputError(), new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.01f, 0.01f)), 0.01f, 0.5f, 0f, 0f, 0f, 1, 1000, 2);
+	BackPropagationTrainer<?> bpt = TrainerFactory.backPropagation(mlp, trainInputProvider, testInputProvider, new MultipleNeuronsOutputError(), new NNRandomInitializer(new MersenneTwisterRandomInitializer(-0.01f, 0.01f)), 0.02f, 0.5f, 0f, 0f, 0f, 1, 1000, 1);
 
 	bpt.addEventListener(new LogTrainingListener(Thread.currentThread().getStackTrace()[1].getMethodName(), false, true));
+	bpt.addEventListener(new EarlyStoppingListener(trainInputProvider, 5000, 0.015f));
 
 	Environment.getInstance().setExecutionMode(EXECUTION_MODE.CPU);
 //	Environment.getInstance().setExecutionMode(EXECUTION_MODE.GPU);

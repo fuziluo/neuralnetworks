@@ -39,6 +39,7 @@ import com.github.neuralnetworks.calculation.neuronfunctions.AparapiTanh;
 import com.github.neuralnetworks.calculation.neuronfunctions.BernoulliDistribution;
 import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorConv;
 import com.github.neuralnetworks.calculation.neuronfunctions.ConnectionCalculatorFullyConnected;
+import com.github.neuralnetworks.calculation.neuronfunctions.WeightedSumSigmoidOpenCL;
 import com.github.neuralnetworks.tensor.Tensor;
 import com.github.neuralnetworks.tensor.TensorFactory;
 import com.github.neuralnetworks.training.backpropagation.BackPropagationAutoencoder;
@@ -127,8 +128,9 @@ public class TrainerFactory {
 		    } else {
 			ffcc = lc.getConnectionCalculator(current);
 		    }
-
-		    if (ffcc instanceof AparapiSigmoid) {
+		    //need to be modified to use OpenCL TODO
+//		    if (ffcc instanceof AparapiSigmoid) {
+			if (ffcc instanceof WeightedSumSigmoidOpenCL || ffcc instanceof AparapiSigmoid) {
 			result = new BackPropagationSigmoid(p);
 		    } else if (ffcc instanceof AparapiTanh) {
 			result = new BackPropagationTanh(p);

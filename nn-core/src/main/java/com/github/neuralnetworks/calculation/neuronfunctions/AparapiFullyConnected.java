@@ -157,10 +157,11 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
 ////		System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
 //		System.out.println(targetLayer.getUnitCount(connections)+" "+input.length+" "+weights.length+" "+output.length + " "+weightsStep[0]+" "+classname.substring(classname.indexOf("$"),classname.indexOf("@")));
 ////		System.out.println("input "+Arrays.toString(input));
-////		System.out.println("weights before "+Arrays.toString(weights));
+//		System.out.println("weights before "+Arrays.toString(weights));
+//		System.out.println("output before "+Arrays.toString(output));
+//		System.out.println("input before "+Arrays.toString(input));
 //		if (this instanceof AparapiBackpropSigmoid) {
-////			System.out.println("output before "+Arrays.toString(output));
-//			
+			
 //			int inputStartPosition = inputStartPositions[0];
 //			int inputRowsStep = inputRowSteps[0];
 //			int weightStartPosition = weightStartPositions[0] + weightsInitialStep[0] * 0;
@@ -174,19 +175,24 @@ public abstract class AparapiFullyConnected extends Kernel implements Connection
 //			}
 //			AparapiBackpropSigmoid back = (AparapiBackpropSigmoid) (this);
 //			System.out.println("ffActivation "+back.ffActivation[0]);
-//			
-//		}
-		Environment.getInstance().getExecutionStrategy().execute(this, targetLayer.getUnitCount(connections));
-//		if (this instanceof AparapiBackpropSigmoid) {
-//			AparapiBackpropSigmoid back = (AparapiBackpropSigmoid) (this);
-//			System.out.println("intermediumOut "+Arrays.toString(intermediumOut));
-//			System.out.println("weights after"+Arrays.toString(weights));
-//			System.out.println("weightUpdates "+Arrays.toString(back.weightUpdates));
 //			System.out.println("ffActivation "+Arrays.toString(back.ffActivation));
+			
 //		}
-//		System.out.println("input: "+Arrays.toString(input));
-//		System.out.println("output: "+Arrays.toString(output));
-//		System.out.println();
+		long t0 = System.currentTimeMillis();
+		Environment.getInstance().getExecutionStrategy().execute(this, targetLayer.getUnitCount(connections));
+		long t1 = System.currentTimeMillis();
+		System.out.println("Aparapi "+(t1-t0) + "ms");
+
+		//		if (this instanceof AparapiBackpropSigmoid) {
+//			AparapiBackpropSigmoid back = (AparapiBackpropSigmoid) (this);
+////			System.out.println("intermediumOut "+Arrays.toString(intermediumOut));
+////			System.out.println("weights after"+Arrays.toString(weights));
+//			System.out.println("weightUpdates "+Arrays.toString(back.weightUpdates));
+////			System.out.println("ffActivation "+Arrays.toString(back.ffActivation));
+//		}
+////		System.out.println("input: "+Arrays.toString(input));
+//		System.out.println("output after : "+Arrays.toString(output));
+////		System.out.println();
 
 	} else {
 	    throw new IllegalArgumentException("A parameter does not match");

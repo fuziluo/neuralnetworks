@@ -174,7 +174,8 @@ public class ConnectionCalculatorFullyConnected implements ConnectionCalculator,
     }
 
     protected ConnectionCalculator createInputFunction(List<Connections> inputConnections, ValuesProvider valuesProvider, Layer targetLayer) {
-	return new AparapiWeightedSum(inputConnections, valuesProvider, targetLayer);
+//    	return new AparapiWeightedSum(inputConnections, valuesProvider, targetLayer);
+    	return new WeightedSumOpenCL(inputConnections, valuesProvider, targetLayer, WeightedSumOpenCL.NOACTIVATION);
     }
 
     protected TensorFunction createDropoutFunction(List<Connections> inputConnections, ValuesProvider valuesProvider, Layer targetLayer) {
@@ -183,11 +184,13 @@ public class ConnectionCalculatorFullyConnected implements ConnectionCalculator,
     }
 
     private ConnectionCalculator getConnectionCalculator(List<Connections> connections, ValuesProvider valuesProvider, Layer targetLayer) {
-	ConnectionCalculator result = inputFunctions.stream().filter(c -> {
-	    return !(c instanceof AparapiFullyConnected) || ((AparapiFullyConnected) c).accept(connections, valuesProvider, targetLayer);
-	}).findFirst().orElse(createInputFunction(connections, valuesProvider, targetLayer));
+//    	ConnectionCalculator result = inputFunctions.stream().filter(c -> {
+//    	    return !(c instanceof AparapiFullyConnected) || ((AparapiFullyConnected) c).accept(connections, valuesProvider, targetLayer);
+//    	}).findFirst().orElse(createInputFunction(connections, valuesProvider, targetLayer));
+    	ConnectionCalculator result = inputFunctions.stream().filter(c -> {
+    	    return !(c instanceof FullyConnectedOpenCL) || ((FullyConnectedOpenCL) c).accept(connections, valuesProvider, targetLayer);
+    	}).findFirst().orElse(createInputFunction(connections, valuesProvider, targetLayer));
 	inputFunctions.add(result);
-
 	return result;
     }
 }

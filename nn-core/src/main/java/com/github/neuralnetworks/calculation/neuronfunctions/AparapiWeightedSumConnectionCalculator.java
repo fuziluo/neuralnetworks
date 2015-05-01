@@ -16,6 +16,6 @@ public class AparapiWeightedSumConnectionCalculator extends ConnectionCalculator
 
     @Override
     protected ConnectionCalculator createInputFunction(List<Connections> inputConnections, ValuesProvider valuesProvider, Layer targetLayer) {
-	return new AparapiWeightedSum(inputConnections, valuesProvider, targetLayer);
+    	return new AparapiWeightedSum(inputConnections, valuesProvider, targetLayer);
     }
 }
